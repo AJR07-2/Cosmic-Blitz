@@ -17,6 +17,6 @@
         "vite": "^4.3.2"
     },
     "dependencies": {
-        "p5play": "^3.8.14"
+        "@types/pixi.js": "^5.0.0"
     }
 }
