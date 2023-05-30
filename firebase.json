@@ -9,5 +9,8 @@
                 "destination": "/index.html"
             }
         ]
+    },
+    "database": {
+        "rules": "firebase/database/rules.json"
     }
 }
