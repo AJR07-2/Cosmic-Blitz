@@ -1,5 +1,5 @@
 import { Application, Text, TextStyle, TextStyleFill } from "pixi.js";
-import Coordinates from "./coordintes";
+import Coordinates from "./coordinates";
 
 export class AddTextOptions {
     coordinates: Coordinates = new Coordinates(0, 0);

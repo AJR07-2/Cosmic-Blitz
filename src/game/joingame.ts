@@ -2,6 +2,8 @@ import firebaseApp from "../lib/firebase";
 import { get, getDatabase, ref, set } from "firebase/database";
 import Player from "./player";
 import Game from "../types/game";
+import { setDisplay } from ".";
+import Display from "../display/display";
 
 const rtdb = getDatabase(firebaseApp);
 
@@ -12,15 +14,13 @@ export default function joinGame(body: HTMLBodyElement) {
     createGameButton.className = "button create";
     createGameButton.addEventListener("click", () => {
         const gameID = Math.random().toString(36).substring(2, 15);
-        const gameRef = ref(rtdb, `games/${gameID}`);
-        set(gameRef, {
+        const gameData = {
             map: 0,
             players: [new Player(1)],
-        } as Game).then(() => {
-            clearBody(body);
-            let gameIDText = document.createElement("p");
-            gameIDText.innerText = `Game ID: ${gameID}`;
-            body.appendChild(gameIDText);
+        } as Game;
+        const gameRef = ref(rtdb, `games/${gameID}`);
+        set(gameRef, gameData).then(() => {
+            enterGame(body, gameID, gameData);
         });
     });
     body.appendChild(createGameButton);
@@ -40,10 +40,7 @@ export default function joinGame(body: HTMLBodyElement) {
                     new Player(newGameData.players.length + 1)
                 );
                 set(ref(rtdb, `games/${gameID}`), newGameData).then(() => {
-                    clearBody(body);
-                    let gameIDText = document.createElement("p");
-                    gameIDText.innerText = `Game ID: ${gameID}`;
-                    body.appendChild(gameIDText);
+                    enterGame(body, gameID, gameData);
                 });
             });
             body.appendChild(joinGameButton);
@@ -51,8 +48,21 @@ export default function joinGame(body: HTMLBodyElement) {
     });
 }
 
-function clearBody(body: HTMLBodyElement) {
+function enterGame(body: HTMLBodyElement, gameID: string, gameData: Game) {
     while (body.firstChild) {
         body.removeChild(body.firstChild);
     }
+    let gameIDText = document.createElement("p");
+    gameIDText.innerText = `Game ID: ${gameID}`;
+    body.appendChild(gameIDText);
+
+    let gameDataText = document.createElement("p");
+    if (gameData.players.length == 1) {
+        gameDataText.innerText += "Waiting for players...";
+    } else {
+        gameDataText.innerText += `Number of Players: ${gameData.players.length}`;
+    }
+    body.appendChild(gameDataText);
+
+    setDisplay(new Display(gameID));
 }

@@ -1,0 +1,30 @@
+* {
+    font-family: "Rubik Pixels";
+    color: white;
+}
+
+.button {
+    display: block;
+    margin: 1vw;
+    padding: 0.25vw 0.5vw;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 2vw;
+    cursor: pointer;
+    border-radius: 0.5vw;
+}
+
+.create {
+    background-color: #4caf50;
+}
+
+.join {
+    background-color: #008cba;
+}
+
+p {
+    font-size: 2vw;
+    margin-left: 1vw;
+}

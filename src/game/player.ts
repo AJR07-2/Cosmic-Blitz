@@ -1,4 +1,4 @@
-import Coordinates from "../utils/coordintes";
+import Coordinates from "../utils/coordinates";
 import Modifier from "./modifier";
 import Projectile from "./projectile";
 
@@ -11,7 +11,6 @@ export interface PlayerExport {
 
 export default class Player {
     id: number;
-    intervalID: number;
     coords: Coordinates;
     rotation: number = 0;
 
@@ -26,7 +25,7 @@ export default class Player {
             this.id == 0 || this.id == 1 ? 0 : window.innerHeight
         );
 
-        this.intervalID = setInterval(() => {
+        setInterval(() => {
             this.states.push(this.export());
             if (this.states.length > 60) this.states.shift();
         }, 1000 / 6);
