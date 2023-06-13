@@ -17,8 +17,8 @@
         "vite": "^4.3.2"
     },
     "dependencies": {
+        "@pixi/ui": "^0.7.2",
         "@types/pixi.js": "^5.0.0",
-        "firebase": "^9.22.1",
         "pixi-matter": "^0.1.0"
     }
 }

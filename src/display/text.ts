@@ -1,5 +1,5 @@
 import { Text, TextStyle, TextStyleFill } from "pixi.js";
-import Coordinates from "./coordinates";
+import Coordinates from "../utils/coordinates";
 
 export class AddTextOptions {
     coordinates: Coordinates = new Coordinates(0, 0);
@@ -48,7 +48,7 @@ export class AddTextOptions {
 
 export function addText(text: string, options: AddTextOptions) {
     const style = new TextStyle({
-        fontFamily: "Rubik Pixels",
+        fontFamily: "Iceland",
         fontSize: options.fontSize,
         fill: options.fill,
         stroke: options.stroke ?? undefined,

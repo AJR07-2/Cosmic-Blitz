@@ -1,4 +1,5 @@
-import joinGame from "./game/joingame";
+import Engine from "./game";
 
-const bodyElement = document.getElementsByTagName("body")[0];
-joinGame(bodyElement);
+let engine: Engine = new Engine();
+
+export default engine;
