@@ -5,11 +5,8 @@ import Coordinates from "../utils/coordinates";
 export default class Display {
     app: PIXI.Application<HTMLCanvasElement> =
         new PIXI.Application<HTMLCanvasElement>();
-    gameID: string;
 
-    constructor(gameID: string) {
-        this.gameID = gameID;
-
+    constructor(gameID: string, host: boolean) {
         this.addApp();
         this.buildLoadingUI();
     }

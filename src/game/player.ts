@@ -1,6 +1,6 @@
 import Coordinates from "../utils/coordinates";
-import Modifier from "./modifier";
-import Projectile from "./projectile";
+import Modifier from "./gameplay/modifiers/modifier";
+import Projectile from "./gameplay/projectile";
 
 export interface PlayerExport {
     coords: Coordinates;

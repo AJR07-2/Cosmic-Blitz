@@ -1,4 +1,4 @@
-import { Application, Text, TextStyle, TextStyleFill } from "pixi.js";
+import { Text, TextStyle, TextStyleFill } from "pixi.js";
 import Coordinates from "./coordinates";
 
 export class AddTextOptions {
