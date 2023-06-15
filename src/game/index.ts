@@ -1,17 +1,18 @@
-import * as PIXI from "pixi.js";
 import { AddTextOptions, addText } from "../display/text";
 import Coordinates from "../utils/coordinates";
-import { Button, ButtonContainer } from "@pixi/ui";
+import { ButtonContainer, ScrollBox } from "@pixi/ui";
 import colours, { playerColour } from "../colours/colour";
 import { basicInteractivity } from "../display/button";
 import Player from "./player";
+import Stage from "./stages";
+import { Application, Assets, Container, Graphics, Sprite } from "pixi.js";
 
 export default class Engine {
-    app: PIXI.Application<HTMLCanvasElement> =
-        new PIXI.Application<HTMLCanvasElement>();
+    app: Application<HTMLCanvasElement> = new Application<HTMLCanvasElement>();
     players: {
         [id: number]: Player;
     } = {};
+    stage: Stage = Stage.START;
 
     constructor() {
         this.initApp();
@@ -24,13 +25,13 @@ export default class Engine {
         document.body.appendChild(this.app.view);
     }
 
-    initPlayers(id: number) {
+    async initPlayers(id: number) {
         let player = new Player(id);
         this.players[id] = player;
 
         // build UI
         const play = new ButtonContainer(
-            new PIXI.Graphics()
+            new Graphics()
                 .beginFill(playerColour[id - 1])
                 .drawRoundedRect(
                     (this.getWidth() * (id * 2 - 1)) / 9,
@@ -40,15 +41,6 @@ export default class Engine {
                     10
                 )
         ).view;
-        play.onclick = () => {
-            if (this.players[id]) {
-                delete this.players[id];
-                play.alpha = 0.5;
-            } else {
-                this.players[id] = new Player(id);
-                play.alpha = 1;
-            }
-        };
 
         play.addChild(
             addText(
@@ -68,7 +60,56 @@ export default class Engine {
             )
         );
 
+        const playerIndicator = new Sprite(
+            await Assets.load(`/players/Player${id}.png`)
+        );
+        playerIndicator.anchor.set(0.5);
+        playerIndicator.x =
+            (this.getWidth() * (id * 2 - 1)) / 9 + this.getWidth() / 16;
+        playerIndicator.y = this.getHeight() / 4 + this.getHeight() / 7;
+        playerIndicator.width = this.getWidth() / 16;
+        playerIndicator.height = this.getWidth() / 16;
+        play.addChild(playerIndicator);
+
+        play.onclick = () => {
+            if (this.players[id]) {
+                delete this.players[id];
+                play.alpha = 0.5;
+                playerIndicator.alpha = 0;
+            } else {
+                this.players[id] = new Player(id);
+                play.alpha = 1;
+                playerIndicator.alpha = 1;
+            }
+        };
+
         this.app.stage.addChild(play);
+    }
+
+    getWidth() {
+        return this.app.view.width;
+    }
+
+    getHeight() {
+        return this.app.view.height;
+    }
+
+    setStages(stage: Stage) {
+        this.stage = stage;
+        switch (stage) {
+            case Stage.START:
+                this.buildStartUI();
+                break;
+            case Stage.INFO:
+                this.buildInfoUI();
+                break;
+            case Stage.GAME:
+                // this.buildGameUI();
+                break;
+            case Stage.END:
+                // this.buildEndUI();
+                break;
+        }
     }
 
     buildStartUI() {
@@ -84,7 +125,7 @@ export default class Engine {
 
         const start = basicInteractivity(
             new ButtonContainer(
-                new PIXI.Graphics()
+                new Graphics()
                     .beginFill(colours.success)
                     .drawRoundedRect(
                         this.getWidth() / 2 - this.getWidth() / 10,
@@ -111,15 +152,18 @@ export default class Engine {
                     .changeAnchorY("center")
             )
         );
+        start.onclick = () => {
+            this.app.stage.removeChildren();
+            this.setStages(Stage.INFO);
+        };
+
         this.app.stage.addChild(start);
         for (let i = 1; i <= 4; i++) this.initPlayers(i);
     }
 
-    getWidth() {
-        return this.app.view.width;
-    }
-
-    getHeight() {
-        return this.app.view.height;
+    async buildInfoUI() {
+        const text = await (await fetch(`/story.txt`)).text();
+        const instructions = text.split("\n\n");
+        // this.app.stage.addChild(scroll);
     }
 }
