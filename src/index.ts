@@ -1,5 +1,7 @@
+import { settings } from "pixi.js";
 import Engine from "./game";
 
-let engine: Engine = new Engine();
+settings.ROUND_PIXELS = true;
 
+let engine: Engine = new Engine();
 export default engine;

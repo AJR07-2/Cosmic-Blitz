@@ -7,7 +7,7 @@ export class AddTextOptions {
     anchorY: "center" | "up" = "center";
     fontSize: number = 200;
     fill: TextStyleFill = "#ffffff";
-    stroke: string | null = "#000000";
+    stroke: string | number | null = "#000000";
     wordWrapWidth: number | null = window.innerWidth;
 
     changeCoordinates(coordinates: Coordinates) {
@@ -25,7 +25,7 @@ export class AddTextOptions {
         return this;
     }
 
-    changeStroke(stroke: string | null) {
+    changeStroke(stroke: string | number | null) {
         this.stroke = stroke;
         return this;
     }

@@ -8,4 +8,6 @@ export function basicInteractivity(button: Container<DisplayObject>) {
     button.onmouseout = () => {
         button.alpha = 1;
     };
+
+    return button;
 }
