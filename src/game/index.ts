@@ -1,14 +1,16 @@
 import { AddTextOptions, addText } from "../display/text";
 import Coordinates from "../utils/coordinates";
-import { ButtonContainer, ScrollBox } from "@pixi/ui";
+import { ButtonContainer } from "@pixi/ui";
 import colours, { playerColour } from "../colours/colour";
 import { basicInteractivity } from "../display/button";
 import Player from "./player";
 import Stage from "./stages";
-import { Application, Assets, Container, Graphics, Sprite } from "pixi.js";
+import { Application, Assets, Graphics, Sprite } from "pixi.js";
+import * as matter from "matter-js";
 
-export default class Engine {
-    app: Application<HTMLCanvasElement> = new Application<HTMLCanvasElement>();
+export default class AppEngine {
+    app: Application<HTMLCanvasElement> | null =
+        new Application<HTMLCanvasElement>();
     players: {
         [id: number]: Player;
     } = {};
@@ -20,9 +22,9 @@ export default class Engine {
     }
 
     initApp() {
-        this.app.resizeTo = window;
-        window.addEventListener("resize", () => this.app.resize());
-        document.body.appendChild(this.app.view);
+        this.app!.resizeTo = window;
+        window.addEventListener("resize", () => this.app?.resize());
+        document.body.appendChild(this.app!.view);
     }
 
     async initPlayers(id: number) {
@@ -83,15 +85,15 @@ export default class Engine {
             }
         };
 
-        this.app.stage.addChild(play);
+        this.app!.stage.addChild(play);
     }
 
     getWidth() {
-        return this.app.view.width;
+        return this.app!.view.width;
     }
 
     getHeight() {
-        return this.app.view.height;
+        return this.app!.view.height;
     }
 
     setStages(stage: Stage) {
@@ -104,7 +106,7 @@ export default class Engine {
                 this.buildInfoUI();
                 break;
             case Stage.GAME:
-                // this.buildGameUI();
+                this.buildGameUI();
                 break;
             case Stage.END:
                 // this.buildEndUI();
@@ -113,7 +115,7 @@ export default class Engine {
     }
 
     buildStartUI() {
-        this.app.stage.addChild(
+        this.app!.stage.addChild(
             addText(
                 "COSMIC BLITZ",
                 new AddTextOptions()
@@ -153,17 +155,141 @@ export default class Engine {
             )
         );
         start.onclick = () => {
-            this.app.stage.removeChildren();
+            this.app!.stage.removeChildren();
             this.setStages(Stage.INFO);
         };
 
-        this.app.stage.addChild(start);
+        this.app!.stage.addChild(start);
         for (let i = 1; i <= 4; i++) this.initPlayers(i);
     }
 
-    async buildInfoUI() {
+    async buildInfoUI(curCount: number = 0) {
         const text = await (await fetch(`/story.txt`)).text();
         const instructions = text.split("\n\n");
-        // this.app.stage.addChild(scroll);
+        let count = curCount;
+
+        this.app!.stage.addChild(
+            addText(
+                instructions[count],
+                new AddTextOptions()
+                    .changeCoordinates(new Coordinates(this.getWidth() / 2, 0))
+                    .changeFontSize(this.getHeight() / 20)
+                    .changeAnchorY("up")
+            )
+        );
+
+        // 2 buttons: skip and next
+        const skip = basicInteractivity(
+            new ButtonContainer(
+                new Graphics()
+                    .beginFill(colours.error)
+                    .drawRoundedRect(
+                        this.getWidth() / 2 - this.getWidth() / 10,
+                        (this.getHeight() * 3) / 4 - this.getHeight() / 20,
+                        this.getWidth() / 5,
+                        this.getHeight() / 10,
+                        10
+                    )
+            ).view
+        );
+
+        skip.addChild(
+            addText(
+                "SKIP",
+                new AddTextOptions()
+                    .changeCoordinates(
+                        new Coordinates(
+                            this.getWidth() / 2,
+                            (this.getHeight() * 3) / 4
+                        )
+                    )
+                    .changeFontSize(this.getHeight() / 15)
+                    .changeAnchorX("center")
+                    .changeAnchorY("center")
+            )
+        );
+        skip.onclick = () => {
+            this.app!.stage.removeChildren();
+            this.setStages(Stage.GAME);
+        };
+
+        const next = basicInteractivity(
+            new ButtonContainer(
+                new Graphics()
+                    .beginFill(colours.success)
+                    .drawRoundedRect(
+                        this.getWidth() / 2 - this.getWidth() / 10,
+                        (this.getHeight() * 3) / 4 + this.getHeight() / 10,
+                        this.getWidth() / 5,
+                        this.getHeight() / 10,
+                        10
+                    )
+            ).view
+        );
+
+        next.addChild(
+            addText(
+                "NEXT",
+                new AddTextOptions()
+                    .changeCoordinates(
+                        new Coordinates(
+                            this.getWidth() / 2,
+                            (this.getHeight() * 3) / 4 +
+                                this.getHeight() / 10 +
+                                this.getHeight() / 20
+                        )
+                    )
+                    .changeFontSize(this.getHeight() / 15)
+                    .changeAnchorX("center")
+                    .changeAnchorY("center")
+            )
+        );
+        next.onclick = () => {
+            this.app!.stage.removeChildren();
+            count++;
+            if (count < instructions.length) {
+                this.buildInfoUI(count);
+            } else {
+                this.setStages(Stage.GAME);
+            }
+        };
+
+        this.app!.stage.addChild(skip);
+        this.app!.stage.addChild(next);
+    }
+
+    buildGameUI() {
+        // remove PIXI.js' canvas
+        document.body.removeChild(
+            document.body.getElementsByTagName("canvas")[0]
+        );
+        this.app = null;
+
+        // create an engine
+        let engine = matter.Engine.create();
+        engine.gravity.scale = 0;
+
+        // create a renderer
+        let render = matter.Render.create({
+            element: document.body,
+            engine: engine,
+            options: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+            },
+        });
+        render.options.wireframes = false;
+
+        // add all of the bodies of the players to the world
+        matter.Composite.add(
+            engine.world,
+            Object.values(this.players).map((player) => player.player)
+        );
+
+        // run the renderer
+        matter.Render.run(render);
+
+        // run the engine
+        matter.Runner.run(engine);
     }
 }

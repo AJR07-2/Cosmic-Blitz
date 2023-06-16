@@ -1,18 +1,16 @@
-import Coordinates from "../utils/coordinates";
+import { playerColour } from "../colours/colour";
 import Modifier from "./gameplay/modifiers/modifier";
 import Projectile from "./gameplay/projectile";
+import * as matter from "matter-js";
 
 export interface PlayerExport {
-    coords: Coordinates;
-    rotation: number;
     modifiers: Modifier[];
     projectiles: Projectile[];
 }
 
 export default class Player {
     id: number;
-    coords: Coordinates;
-    rotation: number = 0;
+    player: any;
 
     states: PlayerExport[] = [];
     modifiers: Modifier[] = [];
@@ -20,10 +18,22 @@ export default class Player {
 
     constructor(id: number) {
         this.id = id;
-        this.coords = new Coordinates(
-            this.id == 0 || this.id == 2 ? 0 : window.innerWidth,
-            this.id == 0 || this.id == 1 ? 0 : window.innerHeight
+
+        // create triangle body
+        this.player = matter.Bodies.fromVertices(
+            this.id == 1 || this.id == 3
+                ? (window.innerWidth * 10) / 100
+                : (window.innerWidth * 90) / 100,
+            this.id == 1 || this.id == 2
+                ? (window.innerHeight * 10) / 100
+                : (window.innerHeight * 90) / 100,
+            [
+                { x: 0, y: 0 },
+                { x: 0, y: 50 },
+                { x: 50, y: 25 },
+            ]
         );
+        this.player.render.fillStyle = "#" + playerColour[this.id - 1];
 
         setInterval(() => {
             this.states.push(this.export());
@@ -33,16 +43,12 @@ export default class Player {
 
     export() {
         return {
-            coords: this.coords,
-            rotation: this.rotation,
             modifiers: this.modifiers,
             projectiles: this.projectiles,
         } as PlayerExport;
     }
 
     load(playerData: PlayerExport) {
-        this.coords = playerData.coords;
-        this.rotation = playerData.rotation;
         this.modifiers = playerData.modifiers;
         this.projectiles = playerData.projectiles;
     }

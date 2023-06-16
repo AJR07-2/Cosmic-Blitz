@@ -1,7 +1,7 @@
 Welcome to COSMIC BLITZ!
 If you are new to the game, please read the instructions below.
 
-INSTRUCTIONS: [SKIP THIS IF YOU HAVE PLAYED BEFORE]
+-- INSTRUCTIONS: [SKIP THIS IF YOU HAVE PLAYED BEFORE] ---
 This is a 4-player game. You can play with 1-4 players (which you have already selected).
 The goal of the game is to be the last player standing, kill each other by shooting each other (or destroying each other with perks).
 
@@ -28,7 +28,8 @@ Yes! Therefore when you use this skill, you are frozen in position, making yours
 
 3. What are perks?
 Perks are special abilities/skills that you can collect that can give you an advantage. These are the perks you might find:
-- 
+- Laser (Blue Rod)
+- Space Mine
 
 How do you find these perks?
 You can do so by destroying asteroids (keeping to the space theme), which could drop a random perk :D.
@@ -43,3 +44,5 @@ While traveling through space, a mishap occurs, trapping your spaceship in a per
 Stranded and searching for an escape, you realize that cooperation or competition is the only way forward. Will you work together with the others, pooling resources and knowledge to find a way out? Or will the confined maze ignite a competitive spirit, driving you to outsmart and outmaneuver your fellow captives?
 
 As tensions rise in the mysterious maze, a thrilling struggle for survival and freedom ensues. Friendships may form, alliances may crumble, and only the smartest and most determined individuals will unravel the maze's secrets, discovering a route back to the boundless expanse of outer space.
+
+--- THAT'S IT, HAVE FUN! ---
