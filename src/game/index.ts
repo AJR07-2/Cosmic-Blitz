@@ -115,6 +115,36 @@ export default class AppEngine {
         }
     }
 
+    createParticle(engine: any) {
+        const particle = new matter.Bodies.circle(
+            Math.random() * window.innerWidth,
+            Math.random() * window.innerHeight,
+            Math.random() * 1 + 1,
+            {
+                render: {
+                    fillStyle: "#" + colours.white,
+                },
+                collisionFilter: {
+                    group: 2,
+                    mask: 0,
+                },
+                friction: 0,
+            }
+        );
+        // set some form of velocity
+        matter.Body.setVelocity(particle, {
+            x: Math.random() * 2 - 1,
+            y: Math.random() * 2 - 1,
+        });
+        // add the particle to the world
+        matter.World.add(engine.world, particle);
+
+        setTimeout(() => {
+            matter.World.remove(engine.world, particle);
+            this.createParticle(engine);
+        }, Math.random() * 50000);
+    }
+
     buildStartUI() {
         this.app!.stage.addChild(
             addText(
@@ -275,6 +305,7 @@ export default class AppEngine {
             element: document.body,
             engine: engine,
             options: {
+                background: "#000000",
                 width: window.innerWidth,
                 height: window.innerHeight,
             },
@@ -287,7 +318,7 @@ export default class AppEngine {
         // create bodies
         for (let i = 1; i <= 4; i++) {
             if (this.players[i]) {
-                this.players[i].createPlayer(runner);
+                this.players[i].createBody(runner, engine.world);
             }
         }
         matter.Composite.add(
@@ -300,5 +331,10 @@ export default class AppEngine {
 
         // run the engine
         matter.Runner.run(runner, engine);
+
+        // others: create natural particles
+        for (let i = 0; i < 100; i++) {
+            this.createParticle(engine);
+        }
     }
 }

@@ -29,7 +29,7 @@ export default class Player {
         }, 1000 / 6);
     }
 
-    createPlayer(runner: any) {
+    createBody(runner: any, world: any) {
         // create triangle body
         this.player = matter.Bodies.fromVertices(
             this.id == 1 || this.id == 3
@@ -50,6 +50,36 @@ export default class Player {
 
         // on game tick
         matter.Events.on(runner, "tick", () => {
+            // create particles
+            if (Math.random() < 0.1) {
+                let particle = matter.Bodies.circle(
+                    this.player.position.x,
+                    this.player.position.y,
+                    Math.random() * 3 + 1,
+                    {
+                        static: true,
+                        collisionFilter: {
+                            group: 1,
+                            mask: 0,
+                        },
+                        render: {
+                            fillStyle:
+                                "#" + playerConstants[this.id - 1].colour,
+                        },
+                    }
+                );
+
+                matter.Body.setVelocity(particle, {
+                    x: Math.random() * 2 - 1,
+                    y: Math.random() * 2 - 1,
+                });
+                matter.Composite.add(world, particle);
+
+                setTimeout(() => {
+                    matter.Composite.remove(world, particle);
+                }, 3000);
+            }
+
             // clamp to world border
             matter.Body.setPosition(this.player, {
                 x: Math.min(
