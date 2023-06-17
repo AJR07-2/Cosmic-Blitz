@@ -9,6 +9,4 @@ let colours = {
     info: "5d9cd3",
 };
 
-export let playerColour = ["7f302b", "e2855d", "20753a", "604eea"];
-
 export default colours;

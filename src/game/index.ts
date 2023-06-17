@@ -1,12 +1,13 @@
 import { AddTextOptions, addText } from "../display/text";
 import Coordinates from "../utils/coordinates";
 import { ButtonContainer } from "@pixi/ui";
-import colours, { playerColour } from "../colours/colour";
+import colours from "../constants/colour";
 import { basicInteractivity } from "../display/button";
 import Player from "./player";
 import Stage from "./stages";
 import { Application, Assets, Graphics, Sprite } from "pixi.js";
 import * as matter from "matter-js";
+import playerConstants from "../constants/player";
 
 export default class AppEngine {
     app: Application<HTMLCanvasElement> | null =
@@ -34,7 +35,7 @@ export default class AppEngine {
         // build UI
         const play = new ButtonContainer(
             new Graphics()
-                .beginFill(playerColour[id - 1])
+                .beginFill(playerConstants[id - 1].colour)
                 .drawRoundedRect(
                     (this.getWidth() * (id * 2 - 1)) / 9,
                     this.getHeight() / 4 - this.getHeight() / 20,
@@ -280,7 +281,15 @@ export default class AppEngine {
         });
         render.options.wireframes = false;
 
-        // add all of the bodies of the players to the world
+        // create runner
+        let runner = matter.Runner.create();
+
+        // create bodies
+        for (let i = 1; i <= 4; i++) {
+            if (this.players[i]) {
+                this.players[i].createPlayer(runner);
+            }
+        }
         matter.Composite.add(
             engine.world,
             Object.values(this.players).map((player) => player.player)
@@ -290,6 +299,6 @@ export default class AppEngine {
         matter.Render.run(render);
 
         // run the engine
-        matter.Runner.run(engine);
+        matter.Runner.run(runner, engine);
     }
 }
