@@ -4,6 +4,7 @@ let playerConstants = [
         rotate: Math.PI / 4,
         keys: {
             rotate: "q",
+            shoot: "w",
         },
     },
     {
@@ -11,6 +12,7 @@ let playerConstants = [
         rotate: (Math.PI * 3) / 4,
         keys: {
             rotate: "p",
+            shoot: "o",
         },
     },
     {
@@ -18,6 +20,7 @@ let playerConstants = [
         rotate: (Math.PI * 7) / 4,
         keys: {
             rotate: "z",
+            shoot: "x",
         },
     },
     {
@@ -25,6 +28,7 @@ let playerConstants = [
         rotate: (Math.PI * 5) / 4,
         keys: {
             rotate: "m",
+            shoot: "n",
         },
     },
 ];

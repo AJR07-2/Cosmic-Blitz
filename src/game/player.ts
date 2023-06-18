@@ -1,16 +1,19 @@
+import colours from "../constants/colour";
 import playerConstants from "../constants/player";
-import Modifier from "./gameplay/modifiers/modifier";
-import Projectile from "./gameplay/projectile";
+import Modifier from "./modifiers/modifier";
 import * as matter from "matter-js";
 
 const SIZE = 50,
     MAX_VEL = 3,
+    SHOT_DELAY = 2,
     BOUNCE_FACTOR = 1.1,
-    ROTATE_FACTOR = 0.025;
+    ROTATE_FACTOR = 0.025,
+    PROJECTILE_VEL = 20;
 
 export interface PlayerExport {
+    id: number;
+    player: any;
     modifiers: Modifier[];
-    projectiles: Projectile[];
 }
 
 export default class Player {
@@ -19,9 +22,13 @@ export default class Player {
 
     states: PlayerExport[] = [];
     modifiers: Modifier[] = [];
-    projectiles: Projectile[] = [];
+    projectiles: any[] = [];
 
     rotating = false;
+    lastShot = {
+        time: 0,
+        isShooting: false,
+    };
 
     constructor(id: number) {
         this.id = id;
@@ -52,16 +59,20 @@ export default class Player {
         this.player.render.zIndex = 1;
         matter.Body.rotate(this.player, playerConstants[this.id - 1].rotate);
 
-        // if rotate key is clicked, rotate the player
+        // key listeners
         document.addEventListener("keydown", (e) => {
             if (e.key == playerConstants[this.id - 1].keys.rotate) {
                 this.rotating = true;
+            } else if (e.key == playerConstants[this.id - 1].keys.shoot) {
+                this.lastShot.isShooting = true;
             }
         });
 
         document.addEventListener("keyup", (e) => {
             if (e.key == playerConstants[this.id - 1].keys.rotate) {
                 this.rotating = false;
+            } else if (e.key == playerConstants[this.id - 1].keys.shoot) {
+                this.lastShot.isShooting = false;
             }
         });
 
@@ -101,6 +112,9 @@ export default class Player {
             if (this.rotating) {
                 matter.Body.rotate(this.player, ROTATE_FACTOR);
             }
+
+            // fire projectiles if possible
+            this.createProjectile(world);
 
             // clamp to world border
             matter.Body.setPosition(this.player, {
@@ -152,15 +166,48 @@ export default class Player {
         });
     }
 
+    createProjectile(world: any) {
+        if (this.lastShot.isShooting) {
+            if (Date.now() - this.lastShot.time >= 1000 * SHOT_DELAY) {
+                this.lastShot.time = Date.now();
+
+                // fire projectile
+                let projectile = matter.Bodies.circle(
+                    this.player.position.x,
+                    this.player.position.y,
+                    5,
+                    {
+                        collisionFilter: {
+                            group: 2,
+                            mask: 0,
+                        },
+                        render: {
+                            fillStyle: "#" + colours.warning,
+                        },
+                        friction: 0,
+                    }
+                );
+                matter.Body.setVelocity(projectile, {
+                    x: Math.cos(this.player.angle) * PROJECTILE_VEL,
+                    y: Math.sin(this.player.angle) * PROJECTILE_VEL,
+                });
+                matter.Composite.add(world, projectile);
+                this.projectiles.push(projectile);
+            }
+        }
+    }
+
     export() {
         return {
             modifiers: this.modifiers,
-            projectiles: this.projectiles,
+            id: this.id,
+            player: this.player,
         } as PlayerExport;
     }
 
     load(playerData: PlayerExport) {
         this.modifiers = playerData.modifiers;
-        this.projectiles = playerData.projectiles;
+        this.id = playerData.id;
+        this.player = playerData.player;
     }
 }
