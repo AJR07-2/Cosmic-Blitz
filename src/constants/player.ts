@@ -5,6 +5,7 @@ let playerConstants = [
         keys: {
             rotate: "q",
             shoot: "w",
+            backspace: "e",
         },
     },
     {
@@ -13,6 +14,7 @@ let playerConstants = [
         keys: {
             rotate: "p",
             shoot: "o",
+            backspace: "i",
         },
     },
     {
@@ -21,6 +23,7 @@ let playerConstants = [
         keys: {
             rotate: "z",
             shoot: "x",
+            backspace: "c",
         },
     },
     {
@@ -29,6 +32,7 @@ let playerConstants = [
         keys: {
             rotate: "m",
             shoot: "n",
+            backspace: "b",
         },
     },
 ];

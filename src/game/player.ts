@@ -1,30 +1,37 @@
 import colours from "../constants/colour";
 import playerConstants from "../constants/player";
-import Modifier from "./modifiers/modifier";
 import * as matter from "matter-js";
 
 const SIZE = 50,
     MAX_VEL = 3,
     SHOT_DELAY = 2,
-    BOUNCE_FACTOR = 1.1,
     ROTATE_FACTOR = 0.075,
     PROJECTILE_VEL = 20;
 
 export interface PlayerExport {
-    id: number;
     player: any;
-    modifiers: Modifier[];
+    modifiers: any[];
+    lastShot: {
+        time: number;
+        isShooting: boolean;
+    };
 }
 
 export default class Player {
     id: number;
-    score: number;
     dead = false;
+    score: number = 0;
+    projectiles: number[] = [];
+
+    engine: any = null;
+    runner: any = null;
+
+    states: PlayerExport[] = [];
+    backTimeStart: number = 0;
+    bar: any = null;
 
     player: any = null;
-    states: PlayerExport[] = [];
-    modifiers: Modifier[] = [];
-    projectiles: number[] = [];
+    modifiers: any[] = [];
     lastShot = {
         time: 0,
         isShooting: false,
@@ -34,15 +41,18 @@ export default class Player {
 
     constructor(id: number) {
         this.id = id;
-        this.score = 0;
 
         setInterval(() => {
+            if (this.dead || this.backTimeStart != 0 || this.player === null)
+                return;
             this.states.push(this.export());
             if (this.states.length > 60) this.states.shift();
         }, 1000 / 6);
     }
 
     createBody(runner: any, engine: any) {
+        this.engine = engine;
+        this.runner = runner;
         const world = engine.world;
 
         // create triangle body
@@ -64,6 +74,7 @@ export default class Player {
                     fillStyle: "#" + playerConstants[this.id - 1].colour,
                     zIndex: 1,
                 },
+                frictionAir: 0,
             }
         );
         matter.Body.rotate(this.player, playerConstants[this.id - 1].rotate);
@@ -97,6 +108,31 @@ export default class Player {
                 this.rotating = true;
             } else if (e.key == playerConstants[this.id - 1].keys.shoot) {
                 this.lastShot.isShooting = true;
+            } else if (
+                e.key == playerConstants[this.id - 1].keys.backspace &&
+                this.backTimeStart == 0
+            ) {
+                this.backTimeStart = new Date().getTime();
+                matter.Sleeping.set(this.player, true);
+                // add a bar at the player's location
+                this.bar = matter.Bodies.rectangle(
+                    this.player.position.x,
+                    this.player.position.y,
+                    5,
+                    10,
+                    {
+                        isStatic: true,
+                        render: {
+                            fillStyle:
+                                "#" + playerConstants[this.id - 1].colour,
+                        },
+                        collisionFilter: {
+                            group: 1,
+                            mask: 0,
+                        },
+                    }
+                );
+                matter.World.add(world, this.bar);
             }
         });
 
@@ -105,6 +141,17 @@ export default class Player {
                 this.rotating = false;
             } else if (e.key == playerConstants[this.id - 1].keys.shoot) {
                 this.lastShot.isShooting = false;
+            } else if (e.key == playerConstants[this.id - 1].keys.backspace) {
+                matter.World.remove(world, this.bar);
+                let newTime = new Date().getTime();
+                let time = Math.floor(
+                    Math.min(10, (newTime - this.backTimeStart) / 1000) * 10
+                );
+                this.load(
+                    this.states[Math.max(0, this.states.length - time - 1)]
+                );
+                this.backTimeStart = 0;
+                matter.Sleeping.set(this.player, false);
             }
         });
 
@@ -112,8 +159,19 @@ export default class Player {
         matter.Events.on(runner, "tick", () => {
             if (this.dead) return;
 
+            // if there's a bar, lengthen it
+            let time = (new Date().getTime() - this.backTimeStart) / 1000;
+            if (this.bar !== null && time < 10) {
+                matter.Body.setVertices(this.bar, [
+                    { x: -time * 5, y: 10 },
+                    { x: time * 5, y: 10 },
+                    { x: time * 5, y: -10 },
+                    { x: -time * 5, y: -10 },
+                ]);
+            }
+
             // create particles
-            if (Math.random() < 0.1) {
+            if (Math.random() < 0.3) {
                 let particle = matter.Bodies.circle(
                     this.player.position.x,
                     this.player.position.y,
@@ -132,8 +190,8 @@ export default class Player {
                 );
 
                 matter.Body.setVelocity(particle, {
-                    x: Math.random() * 0.5 - 1,
-                    y: Math.random() * 0.5 - 1,
+                    x: Math.random() * 1 - 0.5,
+                    y: Math.random() * 1 - 0.5,
                 });
                 matter.Composite.add(world, particle);
 
@@ -162,7 +220,7 @@ export default class Player {
                 ),
             });
 
-            // acceleration from thrusters in the rotation of the player
+            // acceleration from thrusters in the player's direction
             let rotation = this.player.angle;
             matter.Body.applyForce(
                 this.player,
@@ -173,7 +231,7 @@ export default class Player {
                 )
             );
 
-            // bounce off world border
+            // clamp velocity if at border
             if (
                 this.player.position.x <= SIZE ||
                 this.player.position.y >= window.innerHeight - SIZE ||
@@ -181,8 +239,8 @@ export default class Player {
                 this.player.position.y <= SIZE
             ) {
                 matter.Body.setVelocity(this.player, {
-                    x: -this.player.velocity.x * BOUNCE_FACTOR,
-                    y: -this.player.velocity.y * BOUNCE_FACTOR,
+                    x: 0,
+                    y: 0,
                 });
             }
 
@@ -263,16 +321,19 @@ export default class Player {
     }
 
     export() {
-        return {
-            modifiers: this.modifiers,
-            id: this.id,
+        return structuredClone({
             player: this.player,
-        } as PlayerExport;
+            modifiers: this.modifiers,
+            lastShot: this.lastShot,
+        } as PlayerExport);
     }
 
     load(playerData: PlayerExport) {
-        this.modifiers = playerData.modifiers;
-        this.id = playerData.id;
+        matter.World.remove(this.engine.world, this.player);
         this.player = playerData.player;
+        matter.World.add(this.engine.world, this.player);
+
+        this.modifiers = playerData.modifiers;
+        this.lastShot = playerData.lastShot;
     }
 }

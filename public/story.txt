@@ -3,7 +3,7 @@ If you are new to the game, please read the instructions below.
 
 -- INSTRUCTIONS: [SKIP THIS IF YOU HAVE PLAYED BEFORE] ---
 This is a 4-player game. You can play with 1-4 players (which you have already selected).
-The goal of the game is to be the last player standing, kill each other by shooting each other (or destroying each other with perks).
+The goal of the game is to be the last player standing, kill each other by shooting each other.
 
 1. Each player will have their own controls. The controls are as follows:
 Player 1: Q to move, W to shoot/use special ability, E to go back in SPACE!
@@ -13,26 +13,16 @@ Player 4: M to move, N to shoot/use special ability, B to go back in SPACE!
 [Why these keys? Because they are all as far away from each other on the keyboard, so for people can reach them easily.]
 
 2. What does "go BACK in SPACE" mean?
-If you hold the "go BACK in SPACE" button for y seconds, you will be reverted back to the state of your player character x seconds ago.
-x is calculated by the following equation: x = min(10, sqrt(y)). 
-
 Basically, the longer you hold the button, the further back in time you will go, but you can only go back in time up to 10 seconds ago.
 There will be a bar on the top of the screen that will show you how long you have to hold the button to go back in time.
 
 Why is this important?
+[This game was actually planned with perks in mind, which are things you can collect by destroying asteroids. However, due to the unfortunate lack of time, I was unable to implement them... so you kinda just have to visualise it]
 Let's say you are in a dire state, and you HAD a perk that can save you. You can hold the "go back in SPACE" button to go back in time to when you were not about to die, and then use your perk to save yourself.
 Or... you could just evade enemy fire :D
 
 Isn't this too overpowered?
 Yes! Therefore when you use this skill, you are frozen in position, making yourself an easy target to be shot at.
-
-3. What are perks?
-Perks are special abilities/skills that you can collect that can give you an advantage. These are the perks you might find:
-- Laser (Blue Rod)
-- Space Mine
-
-How do you find these perks?
-You can do so by destroying asteroids (keeping to the space theme), which could drop a random perk :D.
 
 HAVE FUN! MAY THE BEST PLAYER WIN!
 
