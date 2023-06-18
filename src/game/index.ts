@@ -321,7 +321,7 @@ export default class AppEngine {
         // create bodies
         for (let i = 1; i <= 4; i++) {
             if (this.players[i]) {
-                this.players[i].createBody(runner, engine.world);
+                this.players[i].createBody(runner, engine);
             }
         }
 
