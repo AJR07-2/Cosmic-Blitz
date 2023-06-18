@@ -8,6 +8,7 @@ import Stage from "./stages";
 import { Application, Assets, Graphics, Sprite } from "pixi.js";
 import * as matter from "matter-js";
 import playerConstants from "../constants/player";
+import { maps } from "./map";
 
 export default class AppEngine {
     app: Application<HTMLCanvasElement> | null =
@@ -129,12 +130,13 @@ export default class AppEngine {
                     mask: 0,
                 },
                 friction: 0,
+                frictionAir: 0,
             }
         );
         // set some form of velocity
         matter.Body.setVelocity(particle, {
-            x: Math.random() * 2 - 1,
-            y: Math.random() * 2 - 1,
+            x: Math.random() * 1 - 0.5,
+            y: Math.random() * 1 - 0.5,
         });
 
         // add the particle to the world
@@ -322,10 +324,13 @@ export default class AppEngine {
                 this.players[i].createBody(runner, engine.world);
             }
         }
+
         matter.Composite.add(
             engine.world,
             Object.values(this.players).map((player) => player.player)
         );
+
+        matter.Composite.add(engine.world, maps[0]);
 
         // add z-index for rendering
         matter.Events.on(engine.world, "afterAdd", (items: any) => {
