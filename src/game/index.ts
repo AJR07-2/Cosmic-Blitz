@@ -136,6 +136,7 @@ export default class AppEngine {
             x: Math.random() * 2 - 1,
             y: Math.random() * 2 - 1,
         });
+
         // add the particle to the world
         matter.World.add(engine.world, particle);
 
@@ -325,6 +326,21 @@ export default class AppEngine {
             engine.world,
             Object.values(this.players).map((player) => player.player)
         );
+
+        // add z-index for rendering
+        matter.Events.on(engine.world, "afterAdd", (items: any) => {
+            engine.world.bodies.sort((a: any, b: any) => {
+                const zIndexA =
+                    a.render && typeof a.render.zIndex !== "undefined"
+                        ? a.render.zIndex
+                        : 0;
+                const zIndexB =
+                    b.render && typeof b.render.zIndex !== "undefined"
+                        ? b.render.zIndex
+                        : 0;
+                return zIndexA - zIndexB;
+            });
+        });
 
         // run the renderer
         matter.Render.run(render);

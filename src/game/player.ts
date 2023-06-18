@@ -5,7 +5,8 @@ import * as matter from "matter-js";
 
 const SIZE = 50,
     MAX_VEL = 3,
-    BOUNCE_FACTOR = 1.1;
+    BOUNCE_FACTOR = 1.1,
+    ROTATE_FACTOR = 0.025;
 
 export interface PlayerExport {
     modifiers: Modifier[];
@@ -19,6 +20,8 @@ export default class Player {
     states: PlayerExport[] = [];
     modifiers: Modifier[] = [];
     projectiles: Projectile[] = [];
+
+    rotating = false;
 
     constructor(id: number) {
         this.id = id;
@@ -46,7 +49,21 @@ export default class Player {
         );
         this.player.render.fillStyle =
             "#" + playerConstants[this.id - 1].colour;
+        this.player.render.zIndex = 1;
         matter.Body.rotate(this.player, playerConstants[this.id - 1].rotate);
+
+        // if rotate key is clicked, rotate the player
+        document.addEventListener("keydown", (e) => {
+            if (e.key == playerConstants[this.id - 1].keys.rotate) {
+                this.rotating = true;
+            }
+        });
+
+        document.addEventListener("keyup", (e) => {
+            if (e.key == playerConstants[this.id - 1].keys.rotate) {
+                this.rotating = false;
+            }
+        });
 
         // on game tick
         matter.Events.on(runner, "tick", () => {
@@ -70,14 +87,19 @@ export default class Player {
                 );
 
                 matter.Body.setVelocity(particle, {
-                    x: Math.random() * 2 - 1,
-                    y: Math.random() * 2 - 1,
+                    x: Math.random() * 0.5 - 1,
+                    y: Math.random() * 0.5 - 1,
                 });
                 matter.Composite.add(world, particle);
 
                 setTimeout(() => {
                     matter.Composite.remove(world, particle);
                 }, 3000);
+            }
+
+            // rotate if key was pressed
+            if (this.rotating) {
+                matter.Body.rotate(this.player, ROTATE_FACTOR);
             }
 
             // clamp to world border
