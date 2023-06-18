@@ -1,7 +1,7 @@
 {
     "hosting": {
         "public": "dist",
-        "site": "astro-party",
+        "site": "cosmic-blitz",
         "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
         "rewrites": [
             {
@@ -9,8 +9,5 @@
                 "destination": "/index.html"
             }
         ]
-    },
-    "database": {
-        "rules": "firebase/database/rules.json"
     }
 }
