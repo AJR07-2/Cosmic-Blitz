@@ -111,7 +111,9 @@ export default class AppEngine {
                 this.buildGameUI();
                 break;
             case Stage.END:
-                // this.buildEndUI();
+                setTimeout(() => {
+                    this.buildEndUI();
+                }, 3000);
                 break;
         }
     }
@@ -156,6 +158,24 @@ export default class AppEngine {
                     .changeCoordinates(new Coordinates(this.getWidth() / 2, 0))
                     .changeFontSize(this.getHeight() / 5)
                     .changeAnchorY("up")
+            )
+        );
+
+        // instructions
+        this.app!.stage.addChild(
+            addText(
+                "Please use a device with a keyboard and a decently big screen to play. If you notice the fonts are off, please refresh the page.",
+                new AddTextOptions()
+                    .changeCoordinates(
+                        new Coordinates(
+                            this.getWidth() / 2,
+                            (this.getHeight() * 3) / 5
+                        )
+                    )
+                    .changeFontSize(this.getHeight() / 30)
+                    .changeAnchorX("center")
+                    .changeAnchorY("center")
+                    .changeStroke(0)
             )
         );
 
@@ -347,6 +367,17 @@ export default class AppEngine {
             });
         });
 
+        matter.Events.on(runner, "tick", () => {
+            let playersAlive = 0;
+            for (let i = 1; i <= 4; i++) {
+                playersAlive +=
+                    !this.players[i] || this.players[i].dead ? 0 : 1;
+            }
+            if (playersAlive <= 1 && this.stage === Stage.GAME) {
+                this.setStages(Stage.END);
+            }
+        });
+
         // run the renderer
         matter.Render.run(render);
 
@@ -357,5 +388,66 @@ export default class AppEngine {
         for (let i = 0; i < 100; i++) {
             this.createParticle(engine);
         }
+    }
+
+    buildEndUI() {
+        document.querySelector("canvas")!.style.display = "none";
+        this.app = new Application<HTMLCanvasElement>();
+        this.initApp();
+
+        const winner = Object.values(this.players).find(
+            (player) => !player.dead
+        );
+
+        this.app!.stage.addChild(
+            addText(
+                winner ? `Player ${winner.id} wins!` : "It's a draw!",
+                new AddTextOptions()
+                    .changeCoordinates(
+                        new Coordinates(
+                            this.getWidth() / 2,
+                            this.getHeight() / 4
+                        )
+                    )
+                    .changeFontSize(this.getHeight() / 5)
+                    .changeAnchorY("up")
+            )
+        );
+
+        // button to visit github
+        const github = basicInteractivity(
+            new ButtonContainer(
+                new Graphics()
+                    .beginFill(colours.white)
+                    .drawRoundedRect(
+                        this.getWidth() / 2 - this.getWidth() / 3,
+                        (this.getHeight() * 3) / 4 - this.getHeight() / 20,
+                        this.getWidth() / 1.5,
+                        this.getHeight() / 10,
+                        10
+                    )
+            ).view
+        );
+
+        github.addChild(
+            addText(
+                "GITHUB - View the Documentation :D",
+                new AddTextOptions()
+                    .changeCoordinates(
+                        new Coordinates(
+                            this.getWidth() / 2,
+                            (this.getHeight() * 3) / 4
+                        )
+                    )
+                    .changeFontSize(this.getHeight() / 15)
+                    .changeAnchorX("center")
+                    .changeAnchorY("center")
+            )
+        );
+        github.onclick = () => {
+            window.location.replace("https://github.com/AJR07/Cosmic-Blitz");
+        };
+
+        this.app!.stage.addChild(github);
     }
 }
