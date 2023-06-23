@@ -100,18 +100,27 @@ export default class AppEngine {
 
     setStages(stage: Stage) {
         this.stage = stage;
+        let themeSong = new Audio("/theme.mp3");
         switch (stage) {
             case Stage.START:
                 this.buildStartUI();
                 break;
             case Stage.INFO:
+                // play theme song
+                themeSong.loop = true;
+                themeSong.play();
                 this.buildInfoUI();
                 break;
             case Stage.GAME:
                 this.buildGameUI();
                 break;
             case Stage.END:
+                // stop theme song
+                themeSong.pause();
+
                 setTimeout(() => {
+                    let win = new Audio("/win.mp3");
+                    win.play();
                     this.buildEndUI();
                 }, 3000);
                 break;

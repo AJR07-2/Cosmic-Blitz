@@ -316,6 +316,10 @@ export default class Player {
                 });
                 matter.Composite.add(world, projectile);
                 this.projectiles.push(projectile.id);
+
+                // play shooting sound
+                let audio = new Audio("/gun_fire.mp3");
+                audio.play();
             }
         }
     }
